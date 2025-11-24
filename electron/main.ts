@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
+import { getPrismaClient, disconnectPrisma } from './database'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -28,6 +29,43 @@ const createWindow = () => {
   }
 }
 
+// IPC Handlers pour UC-01 : Objectif Patrimonial
+ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
+  try {
+    const prisma = getPrismaClient();
+    
+    // Supprimer l'ancien objectif s'il existe (on ne garde qu'un seul objectif)
+    await prisma.goal.deleteMany();
+    
+    // Créer le nouvel objectif
+    const goal = await prisma.goal.create({
+      data: {
+        targetAmount: parseFloat(targetAmount),
+        targetDate: new Date(targetDate),
+      },
+    });
+    
+    return { success: true, goal };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de l\'objectif:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('goal:get', async () => {
+  try {
+    const prisma = getPrismaClient();
+    const goal = await prisma.goal.findFirst({
+      orderBy: { createdAt: 'desc' },
+    });
+    
+    return { success: true, goal };
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'objectif:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', createWindow)
@@ -46,3 +84,8 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+// Cleanup Prisma on quit
+app.on('before-quit', async () => {
+  await disconnectPrisma();
+});

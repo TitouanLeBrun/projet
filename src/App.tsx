@@ -1,25 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoalForm } from './components/GoalForm';
 import './App.css';
 
 function App() {
   const [goalSaved, setGoalSaved] = useState(false);
   const [savedGoal, setSavedGoal] = useState<{ amount: number; date: Date } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Charger l'objectif existant au démarrage
+  useEffect(() => {
+    const loadGoal = async () => {
+      try {
+        const response = await window.electronAPI.goal.get();
+        if (response.success && response.data) {
+          setSavedGoal({
+            amount: response.data.targetAmount,
+            date: new Date(response.data.targetDate),
+          });
+          setGoalSaved(true);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de l\'objectif:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadGoal();
+  }, []);
 
   const handleSaveGoal = async (targetAmount: number, targetDate: Date) => {
     try {
-      // TODO: Appeler l'API Electron pour sauvegarder dans Prisma
-      console.log('Sauvegarde de l\'objectif:', { targetAmount, targetDate });
+      const response = await window.electronAPI.goal.save(targetAmount, targetDate);
       
-      setSavedGoal({ amount: targetAmount, date: targetDate });
-      setGoalSaved(true);
-      
-      alert('✅ Objectif sauvegardé avec succès !');
+      if (response.success) {
+        setSavedGoal({ amount: targetAmount, date: targetDate });
+        setGoalSaved(true);
+        alert('✅ Objectif sauvegardé avec succès !');
+      } else {
+        throw new Error(response.error || 'Erreur inconnue');
+      }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       alert('❌ Erreur lors de la sauvegarde de l\'objectif');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="loading">
+          <h2>💎 Chargement...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
