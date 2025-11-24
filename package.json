@@ -9,22 +9,26 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
     "dev:vite": "vite",
-    "dev:electron": "wait-on tcp:5173 && tsc -p electron -w --outDir dist-electron & cross-env NODE_ENV=development electron .",
+    "dev:electron": "wait-on tcp:5173 && tsc -p electron --outDir dist-electron && concurrently \"tsc -p electron -w --outDir dist-electron\" \"electron .\"",
     "build": "tsc && vite build && tsc -p electron --outDir dist-electron && electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:init": "prisma generate && prisma db push",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^7.0.0",
+    "electron-squirrel-startup": "^1.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@prisma/client": "^6.15.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
@@ -36,7 +40,7 @@
     "eslint": "^9.39.1",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
-    "prisma": "^7.0.0",
+    "prisma": "^6.15.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
     "wait-on": "^9.0.3"

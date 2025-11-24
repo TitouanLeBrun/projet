@@ -1,9 +1,21 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
+import { getPrismaClient, disconnectPrisma } from './database'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit()
+}
+
+// Initialiser la base de données au démarrage
+async function initializeApp() {
+  try {
+    console.log('[App] Initialisation de l\'application...');
+    await getPrismaClient(); // Ceci créera les tables si nécessaire
+    console.log('[App] ✅ Application initialisée');
+  } catch (error) {
+    console.error('[App] Erreur lors de l\'initialisation:', error);
+  }
 }
 
 const createWindow = () => {
@@ -18,19 +30,62 @@ const createWindow = () => {
     },
   })
 
+  // Maximiser la fenêtre au démarrage
+  mainWindow.maximize()
+
   // In production, load the index.html of the app.
   if (app.isPackaged) {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   } else {
     // In development, load the vite dev server
     mainWindow.loadURL('http://localhost:5173')
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
   }
 }
 
+// IPC Handlers pour UC-01 : Objectif Patrimonial
+ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
+  try {
+    const prisma = await getPrismaClient();
+    
+    // Supprimer l'ancien objectif s'il existe (on ne garde qu'un seul objectif)
+    await prisma.goal.deleteMany();
+    
+    // Créer le nouvel objectif
+    const goal = await prisma.goal.create({
+      data: {
+        targetAmount: parseFloat(targetAmount),
+        targetDate: new Date(targetDate),
+      },
+    });
+    
+    return { success: true, data: goal };
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de l\'objectif:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('goal:get', async () => {
+  try {
+    const prisma = await getPrismaClient();
+    const goal = await prisma.goal.findFirst({
+      orderBy: { createdAt: 'desc' },
+    });
+    
+    return { success: true, data: goal };
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'objectif:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.on('ready', createWindow)
+app.on('ready', async () => {
+  await initializeApp();
+  createWindow();
+});
 
 // Quit when all windows are closed, except on macOS.
 app.on('window-all-closed', () => {
@@ -46,3 +101,8 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+// Cleanup Prisma on quit
+app.on('before-quit', async () => {
+  await disconnectPrisma();
+});
