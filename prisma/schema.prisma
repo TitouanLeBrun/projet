@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// UC-01: Objectif Patrimonial
+// Stocke le montant cible et la date cible (Road to 1M)
+model Goal {
+  id          Int      @id @default(autoincrement())
+  targetAmount Float   // Montant cible (ex: 1000000)
+  targetDate  DateTime // Date cible (ex: 2035-01-01)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// UC-02: Actifs (Assets)
+// Représente chaque ligne d'investissement
+model Asset {
+  id              Int        @id @default(autoincrement())
+  name            String     // ex: "Bitcoin", "PEA ETF World"
+  category        String     // "Crypto", "Bourse", "Immo", "Cash"
+  expectedRoi     Float      // ROI espéré en % (ex: 8.5 pour 8.5%)
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  snapshots       Snapshot[] // Relation avec les snapshots
+}
+
+// UC-03: Snapshots (Points de Valeur)
+// Historique des valorisations du patrimoine
+model Snapshot {
+  id          Int      @id @default(autoincrement())
+  assetId     Int
+  value       Float    // Valeur de l'actif à cette date
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId, date])
+}
