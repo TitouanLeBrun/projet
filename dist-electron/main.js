@@ -10,6 +10,17 @@ const database_1 = require("./database");
 if (require('electron-squirrel-startup')) {
     electron_1.app.quit();
 }
+// Initialiser la base de données au démarrage
+async function initializeApp() {
+    try {
+        console.log('[App] Initialisation de l\'application...');
+        await (0, database_1.getPrismaClient)(); // Ceci créera les tables si nécessaire
+        console.log('[App] ✅ Application initialisée');
+    }
+    catch (error) {
+        console.error('[App] Erreur lors de l\'initialisation:', error);
+    }
+}
 const createWindow = () => {
     // Create the browser window.
     const mainWindow = new electron_1.BrowserWindow({
@@ -34,7 +45,7 @@ const createWindow = () => {
 // IPC Handlers pour UC-01 : Objectif Patrimonial
 electron_1.ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
     try {
-        const prisma = (0, database_1.getPrismaClient)();
+        const prisma = await (0, database_1.getPrismaClient)();
         // Supprimer l'ancien objectif s'il existe (on ne garde qu'un seul objectif)
         await prisma.goal.deleteMany();
         // Créer le nouvel objectif
@@ -44,7 +55,7 @@ electron_1.ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate
                 targetDate: new Date(targetDate),
             },
         });
-        return { success: true, goal };
+        return { success: true, data: goal };
     }
     catch (error) {
         console.error('Erreur lors de la sauvegarde de l\'objectif:', error);
@@ -53,11 +64,11 @@ electron_1.ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate
 });
 electron_1.ipcMain.handle('goal:get', async () => {
     try {
-        const prisma = (0, database_1.getPrismaClient)();
+        const prisma = await (0, database_1.getPrismaClient)();
         const goal = await prisma.goal.findFirst({
             orderBy: { createdAt: 'desc' },
         });
-        return { success: true, goal };
+        return { success: true, data: goal };
     }
     catch (error) {
         console.error('Erreur lors de la récupération de l\'objectif:', error);
@@ -66,7 +77,10 @@ electron_1.ipcMain.handle('goal:get', async () => {
 });
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-electron_1.app.on('ready', createWindow);
+electron_1.app.on('ready', async () => {
+    await initializeApp();
+    createWindow();
+});
 // Quit when all windows are closed, except on macOS.
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

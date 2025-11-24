@@ -1,13 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './GoalForm.css';
 
 interface GoalFormProps {
   onSave: (targetAmount: number, targetDate: Date) => void;
+  initialAmount?: number;
+  initialDate?: Date;
 }
 
-export function GoalForm({ onSave }: GoalFormProps) {
-  const [targetAmount, setTargetAmount] = useState<string>('1000000');
-  const [targetDate, setTargetDate] = useState<string>('2035-01-01');
+export function GoalForm({ onSave, initialAmount, initialDate }: GoalFormProps) {
+  const [targetAmount, setTargetAmount] = useState<string>(
+    initialAmount ? initialAmount.toString() : '1000000'
+  );
+  const [targetDate, setTargetDate] = useState<string>(
+    initialDate ? initialDate.toISOString().split('T')[0] : '2035-01-01'
+  );
+
+  // Mettre à jour les valeurs si les props changent
+  useEffect(() => {
+    if (initialAmount !== undefined) {
+      setTargetAmount(initialAmount.toString());
+    }
+    if (initialDate !== undefined) {
+      setTargetDate(initialDate.toISOString().split('T')[0]);
+    }
+  }, [initialAmount, initialDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,15 +84,13 @@ export function GoalForm({ onSave }: GoalFormProps) {
         <button type="submit" className="btn-primary">
           💾 Enregistrer l'Objectif
         </button>
-      </form>
-
-      <div className="goal-preview">
+      </form>      <div className="goal-preview">
         <h3>Aperçu</h3>
         <p>
-          Objectif : <strong>{parseFloat(targetAmount).toLocaleString('fr-FR')} €</strong>
+          Objectif : <strong>{targetAmount ? parseFloat(targetAmount).toLocaleString('fr-FR') : '0'} €</strong>
         </p>
         <p>
-          Date cible : <strong>{new Date(targetDate).toLocaleDateString('fr-FR')}</strong>
+          Date cible : <strong>{targetDate ? new Date(targetDate).toLocaleDateString('fr-FR') : '-'}</strong>
         </p>
       </div>
     </div>

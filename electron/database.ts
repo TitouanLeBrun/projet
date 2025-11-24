@@ -10,25 +10,28 @@ export async function getPrismaClient(): Promise<PrismaClient> {
   if (!prisma) {
     // Déterminer le chemin de la base de données
     const isDev = process.env.NODE_ENV === 'development';
-    const dbDir = isDev
-      ? path.join(process.cwd(), 'prisma')
-      : path.join(app.getPath('userData'));
-    
-    const dbPath = path.join(dbDir, 'dev.db');
-    
-    // Créer le dossier s'il n'existe pas
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-    }
+    const dbPath = isDev
+      ? path.join(process.cwd(), 'prisma', 'dev.db')
+      : path.join(app.getPath('userData'), 'data.db');
     
     // Définir l'URL de la base de données via variable d'environnement
     process.env.DATABASE_URL = `file:${dbPath}`;
     
     console.log('[Database] Initialisation de Prisma...');
     console.log('[Database] Chemin BDD:', dbPath);
+    console.log('[Database] DATABASE_URL:', process.env.DATABASE_URL);
     
-    prisma = new PrismaClient({
-      log: isDev ? ['query', 'error', 'warn'] : ['error'],
+    // Créer la base de données vide si elle n'existe pas
+    const dbDir = path.dirname(dbPath);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    if (!fs.existsSync(dbPath)) {
+      fs.writeFileSync(dbPath, '');
+      console.log('[Database] Fichier de base créé');
+    }
+      prisma = new PrismaClient({
+      log: isDev ? ['error', 'warn'] : ['error'],
     });
     
     // Créer les tables si elles n'existent pas

@@ -6,12 +6,22 @@ function App() {
   const [goalSaved, setGoalSaved] = useState(false);
   const [savedGoal, setSavedGoal] = useState<{ amount: number; date: Date } | null>(null);
   const [loading, setLoading] = useState(true);
-
   // Charger l'objectif existant au démarrage
   useEffect(() => {
     const loadGoal = async () => {
       try {
+        // Vérifier que l'API Electron est disponible
+        if (!window.electronAPI) {
+          console.error('[App] electronAPI non disponible!');
+          console.log('[App] window:', Object.keys(window));
+          setLoading(false);
+          return;
+        }
+        
+        console.log('[App] Chargement de l\'objectif...');
         const response = await window.electronAPI.goal.get();
+        console.log('[App] Réponse:', response);
+        
         if (response.success && response.data) {
           setSavedGoal({
             amount: response.data.targetAmount,
@@ -61,11 +71,13 @@ function App() {
       <header className="app-header">
         <h1>💎 WealthTracker</h1>
         <p className="tagline">Le Cockpit de Pilotage Patrimonial Prévisionnel</p>
-      </header>
-
-      <main className="app-main">
+      </header>      <main className="app-main">
         {!goalSaved ? (
-          <GoalForm onSave={handleSaveGoal} />
+          <GoalForm 
+            onSave={handleSaveGoal}
+            initialAmount={savedGoal?.amount}
+            initialDate={savedGoal?.date}
+          />
         ) : (
           <div className="goal-saved">
             <h2>✅ Objectif Défini</h2>
