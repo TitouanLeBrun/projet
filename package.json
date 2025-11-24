@@ -2,11 +2,17 @@
   "name": "projet",
   "version": "1.0.0",
   "description": "> **Le Cockpit de Pilotage Patrimonial Prévisionnel.**",
-  "main": "index.js",
+  "main": "dist-electron/main.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on tcp:5173 && tsc -p electron -w --outDir dist-electron & cross-env NODE_ENV=development electron .",
+    "build": "tsc && vite build && tsc -p electron --outDir dist-electron && electron-builder",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
