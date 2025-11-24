@@ -1,7 +1,8 @@
 # 📊 Résumé de l'Avancement - WealthTracker
 
 **Date** : 24 novembre 2025  
-**Branche Actuelle** : `feature/uc-01-objectif-patrimonial`
+**Branche Actuelle** : `feature/uc-01-objectif-patrimonial` → Prêt pour merge  
+**Statut** : ✅ UC-01 TERMINÉ
 
 ---
 
@@ -15,13 +16,16 @@
 - ✅ Convention de commits définie
 - ✅ Première feature branch créée : `feature/uc-01-objectif-patrimonial`
 
-### 2. UC-01 : Objectif Patrimonial 🎯
+### 2. UC-01 : Objectif Patrimonial 🎯 ✅ TERMINÉ
 #### Frontend (React + TypeScript)
 - ✅ Composant `GoalForm` avec formulaire stylisé
 - ✅ Validation des données (montant > 0, date future)
 - ✅ Interface de confirmation d'objectif sauvegardé
 - ✅ État de chargement
 - ✅ Design moderne avec gradients
+- ✅ Fenêtre maximisée au démarrage
+- ✅ CSS plein écran (100% viewport)
+- ✅ Suppression des alertes de confirmation (UX améliorée)
 
 #### Backend (Electron + Prisma)
 - ✅ Schéma Prisma défini (`model Goal`)
@@ -39,51 +43,44 @@
 
 ---
 
-## 🚧 En cours / Problèmes
+## 🚧 Problèmes Résolus
 
-### Problème : Prisma 7 Configuration
-**Statut** : ⚠️ Bloquant pour tester l'app
-
-**Description** :  
-Prisma 7 a changé la façon dont la configuration fonctionne. `prisma db push` nécessite un fichier `prisma.config.js` mais la syntaxe exacte n'est pas claire dans la documentation.
-
-**Tentatives** :
-- Configuration TypeScript → Erreur : `defineConfig` n'existe pas
-- Configuration JS avec `export default` → Parse error
-- Configuration JS avec `module.exports` → Parse error
-
-**Solutions possibles** :
-1. Utiliser une version antérieure de Prisma (6.x)
-2. Créer la base manuellement avec SQL
-3. Utiliser uniquement `prisma generate` et laisser l'app créer les tables
-4. Chercher dans la doc officielle Prisma 7
+### ~~Problème : Prisma 7 Configuration~~ ✅ RÉSOLU
+**Solution** : Scripts PowerShell créés pour initialiser la base avec SQL natif
+- ✅ `scripts/init-db.ps1` - Initialise avec données de test
+- ✅ `scripts/init-empty-db.ps1` - Initialise DB vide
+- ✅ `prisma/init.sql` - Script SQL pour créer les tables
+- ✅ Application fonctionnelle et testée
 
 ---
 
 ## 📋 Prochaines Étapes
 
-### Priorité 1 : Débloquer la base de données
-- [ ] Résoudre le problème de configuration Prisma
-- [ ] Créer la base de données `dev.db`
-- [ ] Tester la sauvegarde/récupération d'objectif
+### ✅ UC-01 Terminé - Prêt pour Merge
+- [x] Base de données fonctionnelle
+- [x] Application testée end-to-end
+- [x] UX améliorée (plein écran, pas d'alert)
+- [x] Code nettoyé
+- [ ] **NEXT: Merger UC-01 sur main**
 
-### Priorité 2 : Finaliser UC-01
-- [ ] Tester l'application end-to-end
-- [ ] Corriger les bugs éventuels
-- [ ] Améliorer la gestion d'erreurs (toast au lieu d'alert)
-- [ ] Formater le code avec Prettier
-- [ ] Supprimer les console.log
+### Priorité 1 : Merger UC-01 sur main
+```powershell
+.\scripts\merge-feature.ps1 -ucNumber "01"
+git push origin main
+```
 
-### Priorité 3 : Merger UC-01 sur main
-- [ ] Valider tous les critères de la checklist
-- [ ] Merger avec `.\scripts\merge-feature.ps1 -ucNumber "01"`
-- [ ] Pousser sur origin/main
-
-### Priorité 4 : UC-02 - Créer un Actif
-- [ ] Créer la branche `feature/uc-02-creer-actif`
+### Priorité 2 : UC-02 - Gérer les Actifs (CRUD)
+Selon la roadmap, UC-02 permet de :
+- [ ] Créer la branche `feature/uc-02-gestion-actifs`
 - [ ] Implémenter le schéma Prisma `model Asset`
-- [ ] Créer le formulaire de création d'actif
+- [ ] Page "Mes Actifs" avec liste des actifs
+- [ ] Formulaire Créer/Modifier un actif
+  - Nom de l'actif
+  - Type (Immobilier, Actions, Crypto, etc.)
+  - Valeur actuelle
+  - ROI espéré (%)
 - [ ] IPC handlers pour CRUD assets
+- [ ] Navigation entre pages (Router)
 
 ---
 
