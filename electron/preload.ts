@@ -14,8 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {  // UC-01: Objectif Patrimonial
       return ipcRenderer.invoke('goal:get');
     },
   },
-  
-  // UC-02: Gestion des Actifs
+    // UC-02: Gestion des Actifs
   asset: {
     create: (data: { name: string; category: string; expectedRoi: number }) => {
       console.log('[Preload] Appel asset:create', data);
@@ -39,8 +38,33 @@ contextBridge.exposeInMainWorld('electronAPI', {  // UC-01: Objectif Patrimonial
     },
   },
   
-  // UC-03: Snapshots (à venir)
-  // snapshot: { ... },
+  // UC-03: Snapshots (Points de Valeur)
+  snapshot: {
+    createBatch: (snapshots: Array<{ assetId: number; value: number }>) => {
+      console.log('[Preload] Appel snapshot:createBatch', snapshots);
+      return ipcRenderer.invoke('snapshot:createBatch', snapshots);
+    },
+    create: (data: { assetId: number; value: number; date?: Date }) => {
+      console.log('[Preload] Appel snapshot:create', data);
+      return ipcRenderer.invoke('snapshot:create', data);
+    },
+    getByAsset: (assetId: number) => {
+      console.log('[Preload] Appel snapshot:getByAsset', assetId);
+      return ipcRenderer.invoke('snapshot:getByAsset', assetId);
+    },
+    getLatest: () => {
+      console.log('[Preload] Appel snapshot:getLatest');
+      return ipcRenderer.invoke('snapshot:getLatest');
+    },
+    getTotalValue: (date?: Date) => {
+      console.log('[Preload] Appel snapshot:getTotalValue', date);
+      return ipcRenderer.invoke('snapshot:getTotalValue', date);
+    },
+    getHistory: () => {
+      console.log('[Preload] Appel snapshot:getHistory');
+      return ipcRenderer.invoke('snapshot:getHistory');
+    },
+  },
 });
 
 console.log('[Preload] electronAPI exposé sur window');

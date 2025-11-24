@@ -18,10 +18,36 @@ export interface Asset {
   updatedAt: Date | string;
 }
 
+export interface Snapshot {
+  id: number;
+  assetId: number;
+  value: number;
+  date: Date | string;
+  createdAt: Date | string;
+  asset?: Asset;
+}
+
 export interface AssetCreateData {
   name: string;
   category: string;
   expectedRoi: number;
+}
+
+export interface SnapshotCreateData {
+  assetId: number;
+  value: number;
+  date?: Date;
+}
+
+export interface AssetWithLatestSnapshot {
+  asset: Asset;
+  snapshot: Snapshot | null;
+}
+
+export interface HistoryPoint {
+  date: Date;
+  snapshots: Snapshot[];
+  total: number;
 }
 
 export interface ApiResponse<T> {
@@ -41,6 +67,14 @@ export interface ElectronAPI {
     get: (id: string) => Promise<ApiResponse<Asset | null>>;
     update: (id: string, data: AssetCreateData) => Promise<ApiResponse<Asset>>;
     delete: (id: string) => Promise<ApiResponse<Asset>>;
+  };
+  snapshot: {
+    createBatch: (snapshots: SnapshotCreateData[]) => Promise<ApiResponse<Snapshot[]>>;
+    create: (data: SnapshotCreateData) => Promise<ApiResponse<Snapshot>>;
+    getByAsset: (assetId: number) => Promise<ApiResponse<Snapshot[]>>;
+    getLatest: () => Promise<ApiResponse<AssetWithLatestSnapshot[]>>;
+    getTotalValue: (date?: Date) => Promise<ApiResponse<{ totalValue: number; date: Date }>>;
+    getHistory: () => Promise<ApiResponse<HistoryPoint[]>>;
   };
 }
 

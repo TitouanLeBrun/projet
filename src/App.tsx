@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { GoalForm } from './components/GoalForm';
 import { AssetsPage } from './pages/AssetsPage';
+import { SnapshotsPage } from './pages/SnapshotsPage';
 import './App.css';
 
-type Page = 'goal' | 'assets';
+type Page = 'goal' | 'assets' | 'snapshots';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('goal');
@@ -73,9 +74,7 @@ function App() {
       <header className="app-header">
         <h1>💎 WealthTracker</h1>
         <p className="tagline">Le Cockpit de Pilotage Patrimonial Prévisionnel</p>
-      </header>
-
-      <nav className="app-nav">
+      </header>      <nav className="app-nav">
         <button
           onClick={() => setCurrentPage('goal')}
           className={currentPage === 'goal' ? 'nav-btn active' : 'nav-btn'}
@@ -87,6 +86,12 @@ function App() {
           className={currentPage === 'assets' ? 'nav-btn active' : 'nav-btn'}
         >
           📊 Actifs
+        </button>
+        <button
+          onClick={() => setCurrentPage('snapshots')}
+          className={currentPage === 'snapshots' ? 'nav-btn active' : 'nav-btn'}
+        >
+          📸 Valorisation
         </button>
       </nav>
 
@@ -118,13 +123,18 @@ function App() {
               </div>
             </div>
           )
-        )}
-
-        {currentPage === 'assets' && <AssetsPage />}
+        )}        {currentPage === 'assets' && <AssetsPage />}
+        
+        {currentPage === 'snapshots' && <SnapshotsPage />}
       </main>
 
       <footer className="app-footer">
-        <p>{currentPage === 'goal' ? 'UC-01 : Objectif Patrimonial' : 'UC-02 : Gestion des Actifs'} 🎯</p>
+        <p>
+          {currentPage === 'goal' && 'UC-01 : Objectif Patrimonial'}
+          {currentPage === 'assets' && 'UC-02 : Gestion des Actifs'}
+          {currentPage === 'snapshots' && 'UC-03 : Valorisation du Patrimoine'}
+          {' 🎯'}
+        </p>
       </footer>
     </div>
   );
