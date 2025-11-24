@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
+const database_1 = require("./database");
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
     electron_1.app.quit();
@@ -30,6 +31,39 @@ const createWindow = () => {
         mainWindow.webContents.openDevTools();
     }
 };
+// IPC Handlers pour UC-01 : Objectif Patrimonial
+electron_1.ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
+    try {
+        const prisma = (0, database_1.getPrismaClient)();
+        // Supprimer l'ancien objectif s'il existe (on ne garde qu'un seul objectif)
+        await prisma.goal.deleteMany();
+        // Créer le nouvel objectif
+        const goal = await prisma.goal.create({
+            data: {
+                targetAmount: parseFloat(targetAmount),
+                targetDate: new Date(targetDate),
+            },
+        });
+        return { success: true, goal };
+    }
+    catch (error) {
+        console.error('Erreur lors de la sauvegarde de l\'objectif:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
+electron_1.ipcMain.handle('goal:get', async () => {
+    try {
+        const prisma = (0, database_1.getPrismaClient)();
+        const goal = await prisma.goal.findFirst({
+            orderBy: { createdAt: 'desc' },
+        });
+        return { success: true, goal };
+    }
+    catch (error) {
+        console.error('Erreur lors de la récupération de l\'objectif:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 electron_1.app.on('ready', createWindow);
@@ -45,4 +79,8 @@ electron_1.app.on('activate', () => {
     if (electron_1.BrowserWindow.getAllWindows().length === 0) {
         createWindow();
     }
+});
+// Cleanup Prisma on quit
+electron_1.app.on('before-quit', async () => {
+    await (0, database_1.disconnectPrisma)();
 });

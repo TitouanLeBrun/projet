@@ -7,6 +7,17 @@ if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
+// Initialiser la base de données au démarrage
+async function initializeApp() {
+  try {
+    console.log('[App] Initialisation de l\'application...');
+    await getPrismaClient(); // Ceci créera les tables si nécessaire
+    console.log('[App] ✅ Application initialisée');
+  } catch (error) {
+    console.error('[App] Erreur lors de l\'initialisation:', error);
+  }
+}
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -32,7 +43,7 @@ const createWindow = () => {
 // IPC Handlers pour UC-01 : Objectif Patrimonial
 ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
   try {
-    const prisma = getPrismaClient();
+    const prisma = await getPrismaClient();
     
     // Supprimer l'ancien objectif s'il existe (on ne garde qu'un seul objectif)
     await prisma.goal.deleteMany();
@@ -45,7 +56,7 @@ ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
       },
     });
     
-    return { success: true, goal };
+    return { success: true, data: goal };
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de l\'objectif:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
@@ -54,12 +65,12 @@ ipcMain.handle('goal:save', async (_event, { targetAmount, targetDate }) => {
 
 ipcMain.handle('goal:get', async () => {
   try {
-    const prisma = getPrismaClient();
+    const prisma = await getPrismaClient();
     const goal = await prisma.goal.findFirst({
       orderBy: { createdAt: 'desc' },
     });
     
-    return { success: true, goal };
+    return { success: true, data: goal };
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'objectif:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
@@ -68,7 +79,10 @@ ipcMain.handle('goal:get', async () => {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.on('ready', createWindow)
+app.on('ready', async () => {
+  await initializeApp();
+  createWindow();
+});
 
 // Quit when all windows are closed, except on macOS.
 app.on('window-all-closed', () => {
