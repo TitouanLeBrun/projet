@@ -37,7 +37,32 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
             return electron_1.ipcRenderer.invoke('asset:delete', id);
         },
     },
-    // UC-03: Snapshots (à venir)
-    // snapshot: { ... },
+    // UC-03: Snapshots (Points de Valeur)
+    snapshot: {
+        createBatch: (snapshots) => {
+            console.log('[Preload] Appel snapshot:createBatch', snapshots);
+            return electron_1.ipcRenderer.invoke('snapshot:createBatch', snapshots);
+        },
+        create: (data) => {
+            console.log('[Preload] Appel snapshot:create', data);
+            return electron_1.ipcRenderer.invoke('snapshot:create', data);
+        },
+        getByAsset: (assetId) => {
+            console.log('[Preload] Appel snapshot:getByAsset', assetId);
+            return electron_1.ipcRenderer.invoke('snapshot:getByAsset', assetId);
+        },
+        getLatest: () => {
+            console.log('[Preload] Appel snapshot:getLatest');
+            return electron_1.ipcRenderer.invoke('snapshot:getLatest');
+        },
+        getTotalValue: (date) => {
+            console.log('[Preload] Appel snapshot:getTotalValue', date);
+            return electron_1.ipcRenderer.invoke('snapshot:getTotalValue', date);
+        },
+        getHistory: () => {
+            console.log('[Preload] Appel snapshot:getHistory');
+            return electron_1.ipcRenderer.invoke('snapshot:getHistory');
+        },
+    },
 });
 console.log('[Preload] electronAPI exposé sur window');

@@ -166,6 +166,166 @@ ipcMain.handle('asset:delete', async (_event, id) => {
   }
 });
 
+// IPC Handlers pour UC-03 : Snapshots (Points de Valeur)
+ipcMain.handle('snapshot:createBatch', async (_event, snapshots) => {
+  try {
+    const prisma = await getPrismaClient();
+    
+    // Créer tous les snapshots en une transaction
+    const createdSnapshots = await prisma.$transaction(
+      snapshots.map((snapshot: { assetId: number; value: number }) =>
+        prisma.snapshot.create({
+          data: {
+            assetId: snapshot.assetId,
+            value: parseFloat(snapshot.value.toString()),
+            date: new Date(),
+          },
+        })
+      )
+    );
+    
+    return { success: true, data: createdSnapshots };
+  } catch (error) {
+    console.error('Erreur lors de la création des snapshots:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('snapshot:create', async (_event, data) => {
+  try {
+    const prisma = await getPrismaClient();
+    
+    const snapshot = await prisma.snapshot.create({
+      data: {
+        assetId: parseInt(data.assetId),
+        value: parseFloat(data.value),
+        date: data.date ? new Date(data.date) : new Date(),
+      },
+    });
+    
+    return { success: true, data: snapshot };
+  } catch (error) {
+    console.error('Erreur lors de la création du snapshot:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('snapshot:getByAsset', async (_event, assetId) => {
+  try {
+    const prisma = await getPrismaClient();
+    const snapshots = await prisma.snapshot.findMany({
+      where: { assetId: parseInt(assetId) },
+      orderBy: { date: 'desc' },
+      include: { asset: true },
+    });
+    
+    return { success: true, data: snapshots };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des snapshots:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('snapshot:getLatest', async () => {
+  try {
+    const prisma = await getPrismaClient();
+    
+    // Récupérer tous les actifs actifs
+    const assets = await prisma.asset.findMany({
+      where: { isActive: true },
+    });
+    
+    // Pour chaque actif, récupérer le dernier snapshot
+    const latestSnapshots = await Promise.all(
+      assets.map(async (asset) => {
+        const snapshot = await prisma.snapshot.findFirst({
+          where: { assetId: asset.id },
+          orderBy: { date: 'desc' },
+        });
+        
+        return {
+          asset,
+          snapshot,
+        };
+      })
+    );
+    
+    return { success: true, data: latestSnapshots };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des derniers snapshots:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('snapshot:getTotalValue', async (_event, date) => {
+  try {
+    const prisma = await getPrismaClient();
+    
+    const targetDate = date ? new Date(date) : new Date();
+    
+    // Récupérer tous les actifs actifs
+    const assets = await prisma.asset.findMany({
+      where: { isActive: true },
+    });
+    
+    // Pour chaque actif, récupérer le snapshot le plus proche de la date
+    let totalValue = 0;
+    
+    for (const asset of assets) {
+      const snapshot = await prisma.snapshot.findFirst({
+        where: {
+          assetId: asset.id,
+          date: { lte: targetDate },
+        },
+        orderBy: { date: 'desc' },
+      });
+      
+      if (snapshot) {
+        totalValue += snapshot.value;
+      }
+    }
+    
+    return { success: true, data: { totalValue, date: targetDate } };
+  } catch (error) {
+    console.error('Erreur lors du calcul de la valeur totale:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('snapshot:getHistory', async () => {
+  try {
+    const prisma = await getPrismaClient();
+    
+    const snapshots = await prisma.snapshot.findMany({
+      include: { asset: true },
+      orderBy: { date: 'asc' },
+    });
+    
+    // Grouper par date et calculer le total par date
+    const groupedByDate = snapshots.reduce((acc, snapshot) => {
+      const dateKey = snapshot.date.toISOString().split('T')[0];
+      
+      if (!acc[dateKey]) {
+        acc[dateKey] = {
+          date: snapshot.date,
+          snapshots: [],
+          total: 0,
+        };
+      }
+      
+      acc[dateKey].snapshots.push(snapshot);
+      acc[dateKey].total += snapshot.value;
+      
+      return acc;
+    }, {} as Record<string, { date: Date; snapshots: any[]; total: number }>);
+    
+    return { success: true, data: Object.values(groupedByDate) };
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'historique:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', async () => {
