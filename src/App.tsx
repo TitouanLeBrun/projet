@@ -74,6 +74,7 @@ function App() {
       </header>      <main className="app-main">
         {!goalSaved ? (
           <GoalForm 
+            key={savedGoal ? `edit-${savedGoal.amount}` : 'new'}
             onSave={handleSaveGoal}
             initialAmount={savedGoal?.amount}
             initialDate={savedGoal?.date}

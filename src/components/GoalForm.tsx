@@ -53,12 +53,15 @@ export function GoalForm({ onSave, initialAmount, initialDate }: GoalFormProps) 
         <div className="form-group">
           <label htmlFor="targetAmount">
             💰 Montant Cible (€)
-          </label>
+          </label>          
           <input
             type="number"
             id="targetAmount"
             value={targetAmount}
-            onChange={(e) => setTargetAmount(e.target.value)}
+            onChange={(e) => {
+              console.log(e.target.value); 
+              setTargetAmount(e.target.value);
+            }}
             placeholder="1000000"
             step="1000"
             min="0"
