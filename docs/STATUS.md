@@ -1,8 +1,8 @@
 # 📊 Résumé de l'Avancement - WealthTracker
 
 **Date** : 24 novembre 2025  
-**Branche Actuelle** : `feature/uc-01-objectif-patrimonial` → Prêt pour merge  
-**Statut** : ✅ UC-01 TERMINÉ
+**Branche Actuelle** : `feature/uc-02-patrimoine-actuel`  
+**Statut** : ✅ UC-01 MERGÉ | 🚀 UC-02 EN COURS
 
 ---
 
@@ -14,9 +14,9 @@
   - `scripts/new-feature.ps1` - Créer une feature branch
   - `scripts/merge-feature.ps1` - Merger une feature sur main
 - ✅ Convention de commits définie
-- ✅ Première feature branch créée : `feature/uc-01-objectif-patrimonial`
+- ✅ UC-01 mergé sur main avec succès
 
-### 2. UC-01 : Objectif Patrimonial 🎯 ✅ TERMINÉ
+### 2. UC-01 : Objectif Patrimonial 🎯 ✅ TERMINÉ & MERGÉ
 #### Frontend (React + TypeScript)
 - ✅ Composant `GoalForm` avec formulaire stylisé
 - ✅ Validation des données (montant > 0, date future)
@@ -38,8 +38,40 @@
 
 #### Documentation
 - ✅ `docs/UC-01.md` - Documentation complète UC-01
-- ✅ `docs/GIT_WORKFLOW.md` - Guide Git
-- ✅ README mis à jour avec section Git workflow
+- ✅ Mergé sur main le 24/11/2025
+
+### 3. UC-02 : Gestion des Actifs 📊 🚀 EN COURS
+#### Frontend (React + TypeScript)
+- ✅ Composant `AssetForm` - Formulaire création/modification
+- ✅ Composant `AssetList` - Liste avec cartes colorées par catégorie
+- ✅ Page `AssetsPage` - Page complète de gestion
+- ✅ Navigation entre Objectif et Actifs
+- ✅ Design responsive avec catégories visuelles :
+  - 🟡 Crypto (Jaune/Or)
+  - 📈 Bourse (Bleu)
+  - 🏠 Immobilier (Vert)
+  - 💵 Cash (Gris)
+  - 🔷 Autre (Violet)
+
+#### Backend (Electron + Prisma)
+- ✅ Schéma Prisma existant (`model Asset`)
+- ✅ IPC Handlers CRUD complets :
+  - `asset:create` - Créer un actif
+  - `asset:list` - Lister les actifs actifs
+  - `asset:get` - Récupérer un actif
+  - `asset:update` - Mettre à jour un actif
+  - `asset:delete` - Supprimer (soft delete)
+- ✅ API Electron exposée via preload
+- ✅ Types TypeScript pour Asset et AssetCreateData
+- ✅ Soft delete avec flag `isActive`
+
+#### Documentation
+- ✅ `docs/UC-02.md` - Documentation complète UC-02
+
+#### Prochaine étape UC-02
+- [ ] Tester l'application end-to-end
+- [ ] Corriger les éventuels bugs
+- [ ] Merger sur main
 
 ---
 
@@ -56,31 +88,33 @@
 
 ## 📋 Prochaines Étapes
 
-### ✅ UC-01 Terminé - Prêt pour Merge
-- [x] Base de données fonctionnelle
-- [x] Application testée end-to-end
-- [x] UX améliorée (plein écran, pas d'alert)
-- [x] Code nettoyé
-- [ ] **NEXT: Merger UC-01 sur main**
+### 🚀 UC-02 En Cours - Tests et Finalisation
+- [x] Schéma et backend implémentés
+- [x] Interface utilisateur complète
+- [x] Navigation entre pages
+- [ ] **NEXT: Tester l'application**
+- [ ] Corriger les bugs éventuels
+- [ ] Merger UC-02 sur main
 
-### Priorité 1 : Merger UC-01 sur main
+### Priorité 1 : Finaliser UC-02
 ```powershell
-.\scripts\merge-feature.ps1 -ucNumber "01"
+# Tester l'app
+npm run dev
+
+# Si OK, merger
+git checkout main
+git merge --no-ff feature/uc-02-patrimoine-actuel
 git push origin main
 ```
 
-### Priorité 2 : UC-02 - Gérer les Actifs (CRUD)
-Selon la roadmap, UC-02 permet de :
-- [ ] Créer la branche `feature/uc-02-gestion-actifs`
-- [ ] Implémenter le schéma Prisma `model Asset`
-- [ ] Page "Mes Actifs" avec liste des actifs
-- [ ] Formulaire Créer/Modifier un actif
-  - Nom de l'actif
-  - Type (Immobilier, Actions, Crypto, etc.)
-  - Valeur actuelle
-  - ROI espéré (%)
-- [ ] IPC handlers pour CRUD assets
-- [ ] Navigation entre pages (Router)
+### Priorité 2 : UC-03 - Saisir les Snapshots
+Selon la roadmap, UC-03 permet de :
+- [ ] Créer la branche `feature/uc-03-snapshots`
+- [ ] Page "Saisir Valeurs" avec liste des actifs
+- [ ] Formulaire de saisie des valeurs actuelles
+- [ ] Historique des snapshots par actif
+- [ ] Graphique d'évolution (optionnel)
+- [ ] IPC handlers pour snapshots
 
 ---
 
@@ -90,33 +124,43 @@ Selon la roadmap, UC-02 permet de :
 projet/
 ├── docs/
 │   ├── ALGORITHM.md
-│   ├── GIT_WORKFLOW.md          ✨ Nouveau
+│   ├── GIT_WORKFLOW.md
 │   ├── ROADMAP.md
-│   ├── UC-01.md                 ✨ Nouveau
+│   ├── STATUS.md                ✏️ Modifié
+│   ├── UC-01.md                 ✅ Mergé
+│   ├── UC-02.md                 ✨ Nouveau
 │   └── USE_CASES.md
 ├── electron/
-│   ├── database.ts              ✨ Nouveau
-│   ├── main.ts                  ✏️ Modifié (IPC)
-│   ├── preload.ts               ✏️ Modifié (API)
-│   └── tsconfig.json            ✏️ Modifié
+│   ├── database.ts
+│   ├── main.ts                  ✏️ Modifié (UC-02 IPC)
+│   ├── preload.ts               ✏️ Modifié (asset API)
+│   └── tsconfig.json
 ├── prisma/
-│   └── schema.prisma            ✨ Nouveau
+│   ├── dev.db
+│   ├── init.sql
+│   └── schema.prisma            (Asset déjà présent)
 ├── scripts/
-│   ├── init-db.ps1              ✨ Nouveau
-│   ├── merge-feature.ps1        ✨ Nouveau
-│   └── new-feature.ps1          ✨ Nouveau
+│   ├── init-db.ps1
+│   ├── merge-feature.ps1
+│   └── new-feature.ps1
 ├── src/
 │   ├── components/
-│   │   ├── GoalForm.tsx         ✨ Nouveau
-│   │   └── GoalForm.css         ✨ Nouveau
+│   │   ├── AssetForm.tsx        ✨ Nouveau
+│   │   ├── AssetForm.css        ✨ Nouveau
+│   │   ├── AssetList.tsx        ✨ Nouveau
+│   │   ├── AssetList.css        ✨ Nouveau
+│   │   ├── GoalForm.tsx
+│   │   └── GoalForm.css
+│   ├── pages/
+│   │   ├── AssetsPage.tsx       ✨ Nouveau
+│   │   └── AssetsPage.css       ✨ Nouveau
 │   ├── types/
-│   │   └── electron.d.ts        ✨ Nouveau
-│   ├── App.tsx                  ✏️ Modifié
-│   ├── App.css                  ✨ Nouveau
-│   └── vite-env-custom.d.ts     ✨ Nouveau
-├── .env                         ✨ Nouveau
-├── prisma.config.js             ⚠️ En test
-└── package.json                 ✏️ Modifié (scripts db)
+│   │   └── electron.d.ts        ✏️ Modifié (Asset types)
+│   ├── App.tsx                  ✏️ Modifié (navigation)
+│   ├── App.css                  ✏️ Modifié (nav styles)
+│   ├── index.css                ✏️ Modifié
+│   └── vite-env-custom.d.ts
+└── package.json
 ```
 
 ---
@@ -124,8 +168,8 @@ projet/
 ## 🎯 Objectifs Globaux
 
 ### Phase 1 : MVP Fonctionnel
-- [ ] UC-01 : Objectif Patrimonial ← **80% complété**
-- [ ] UC-02 : Créer un Actif
+- [x] UC-01 : Objectif Patrimonial ← **✅ TERMINÉ & MERGÉ**
+- [x] UC-02 : Créer un Actif ← **🚀 EN COURS (90%)**
 - [ ] UC-03 : Saisir un Snapshot
 
 ### Phase 2 : Dashboard
@@ -154,4 +198,5 @@ projet/
 
 ---
 
-**Dernière mise à jour** : 24 novembre 2025 16:00
+**Dernière mise à jour** : 24 novembre 2025 17:30  
+**Développeur** : GitHub Copilot + Utilisateur
