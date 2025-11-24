@@ -1,8 +1,8 @@
 # 📊 Résumé de l'Avancement - WealthTracker
 
 **Date** : 24 novembre 2025  
-**Branche Actuelle** : `feature/uc-02-patrimoine-actuel`  
-**Statut** : ✅ UC-01 MERGÉ | 🚀 UC-02 EN COURS
+**Branche Actuelle** : `feature/uc-03-snapshots`  
+**Statut** : ✅ UC-01 MERGÉ | ✅ UC-02 MERGÉ | 🚀 UC-03 EN COURS
 
 ---
 
@@ -40,7 +40,7 @@
 - ✅ `docs/UC-01.md` - Documentation complète UC-01
 - ✅ Mergé sur main le 24/11/2025
 
-### 3. UC-02 : Gestion des Actifs 📊 🚀 EN COURS
+### 3. UC-02 : Gestion des Actifs 📊 ✅ TERMINÉ & MERGÉ
 #### Frontend (React + TypeScript)
 - ✅ Composant `AssetForm` - Formulaire création/modification
 - ✅ Composant `AssetList` - Liste avec cartes colorées par catégorie
@@ -67,8 +67,37 @@
 
 #### Documentation
 - ✅ `docs/UC-02.md` - Documentation complète UC-02
+- ✅ `docs/TEST_UC-02.md` - Guide de test
+- ✅ Mergé sur main le 24/11/2025
 
-#### Prochaine étape UC-02
+### 4. UC-03 : Saisie des Snapshots 📸 🚀 EN COURS
+#### Frontend (React + TypeScript)
+- ✅ Composant `SnapshotForm` - Saisie batch des valeurs
+- ✅ Page `SnapshotsPage` - Affichage patrimoine total
+- ✅ Navigation vers onglet "Valorisation"
+- ✅ Calcul temps réel de la valeur totale
+- ✅ Badge "Nouveau" sur actifs sans historique
+- ✅ Pré-remplissage avec dernières valeurs
+- ✅ Grille responsive des actifs valorisés
+
+#### Backend (Electron + Prisma)
+- ✅ Schéma Prisma existant (`model Snapshot`)
+- ✅ IPC Handlers complets :
+  - `snapshot:createBatch` - Créer plusieurs snapshots en batch
+  - `snapshot:create` - Créer un snapshot unique
+  - `snapshot:getByAsset` - Historique par actif
+  - `snapshot:getLatest` - Dernières valeurs de tous les actifs
+  - `snapshot:getTotalValue` - Valeur totale à une date
+  - `snapshot:getHistory` - Historique complet groupé par date
+- ✅ API Electron exposée via preload
+- ✅ Types TypeScript pour Snapshot et AssetWithLatestSnapshot
+- ✅ Transaction batch pour cohérence des données
+
+#### Documentation
+- ✅ `docs/UC-03.md` - Documentation complète UC-03
+- ✅ `docs/TEST_UC-03.md` - Guide de test
+
+#### Prochaine étape UC-03
 - [ ] Tester l'application end-to-end
 - [ ] Corriger les éventuels bugs
 - [ ] Merger sur main
@@ -88,17 +117,33 @@
 
 ## 📋 Prochaines Étapes
 
-### 🚀 UC-02 En Cours - Tests et Finalisation
+### 🚀 UC-03 En Cours - Tests et Finalisation
 - [x] Schéma et backend implémentés
 - [x] Interface utilisateur complète
-- [x] Navigation entre pages
+- [x] Navigation et calculs temps réel
 - [ ] **NEXT: Tester l'application**
 - [ ] Corriger les bugs éventuels
-- [ ] Merger UC-02 sur main
+- [ ] Merger UC-03 sur main
 
-### Priorité 1 : Finaliser UC-02
+### Priorité 1 : Finaliser UC-03
 ```powershell
 # Tester l'app
+npm run dev
+
+# Si OK, merger
+git checkout main
+git merge --no-ff feature/uc-03-snapshots
+git push origin main
+```
+
+### Priorité 2 : UC-04 - Dashboard "Road to 1M"
+Selon la roadmap, UC-04 permet de :
+- [ ] Créer la branche `feature/uc-04-dashboard`
+- [ ] Implémenter le graphique de progression
+- [ ] Afficher courbe réelle vs courbe théorique
+- [ ] Calculer le ROI moyen pondéré
+- [ ] Projection avec intérêts composés
+- [ ] Intégration Chart.js ou Recharts
 npm run dev
 
 # Si OK, merger
@@ -169,8 +214,8 @@ projet/
 
 ### Phase 1 : MVP Fonctionnel
 - [x] UC-01 : Objectif Patrimonial ← **✅ TERMINÉ & MERGÉ**
-- [x] UC-02 : Créer un Actif ← **🚀 EN COURS (90%)**
-- [ ] UC-03 : Saisir un Snapshot
+- [x] UC-02 : Créer un Actif ← **✅ TERMINÉ & MERGÉ**
+- [x] UC-03 : Saisir un Snapshot ← **🚀 EN COURS (90%)**
 
 ### Phase 2 : Dashboard
 - [ ] UC-04 : Visualiser la Trajectoire
