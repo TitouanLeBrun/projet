@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { GoalForm } from './components/GoalForm';
+import { AssetsPage } from './pages/AssetsPage';
 import './App.css';
 
+type Page = 'goal' | 'assets';
+
 function App() {
+  const [currentPage, setCurrentPage] = useState<Page>('goal');
   const [goalSaved, setGoalSaved] = useState(false);
   const [savedGoal, setSavedGoal] = useState<{ amount: number; date: Date } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,43 +68,63 @@ function App() {
       </div>
     );
   }
-
   return (
     <div className="app">
       <header className="app-header">
         <h1>💎 WealthTracker</h1>
         <p className="tagline">Le Cockpit de Pilotage Patrimonial Prévisionnel</p>
-      </header>      <main className="app-main">
-        {!goalSaved ? (
-          <GoalForm 
-            key={savedGoal ? `edit-${savedGoal.amount}` : 'new'}
-            onSave={handleSaveGoal}
-            initialAmount={savedGoal?.amount}
-            initialDate={savedGoal?.date}
-          />
-        ) : (
-          <div className="goal-saved">
-            <h2>✅ Objectif Défini</h2>
-            <div className="saved-goal-card">
-              <p>
-                🎯 Montant Cible : <strong>{savedGoal?.amount.toLocaleString('fr-FR')} €</strong>
-              </p>
-              <p>
-                📅 Date Cible : <strong>{savedGoal?.date.toLocaleDateString('fr-FR')}</strong>
-              </p>
-              <button 
-                onClick={() => setGoalSaved(false)}
-                className="btn-secondary"
-              >
-                ✏️ Modifier l'Objectif
-              </button>
+      </header>
+
+      <nav className="app-nav">
+        <button
+          onClick={() => setCurrentPage('goal')}
+          className={currentPage === 'goal' ? 'nav-btn active' : 'nav-btn'}
+        >
+          🎯 Objectif
+        </button>
+        <button
+          onClick={() => setCurrentPage('assets')}
+          className={currentPage === 'assets' ? 'nav-btn active' : 'nav-btn'}
+        >
+          📊 Actifs
+        </button>
+      </nav>
+
+      <main className="app-main">
+        {currentPage === 'goal' && (
+          !goalSaved ? (
+            <GoalForm 
+              key={savedGoal ? `edit-${savedGoal.amount}` : 'new'}
+              onSave={handleSaveGoal}
+              initialAmount={savedGoal?.amount}
+              initialDate={savedGoal?.date}
+            />
+          ) : (
+            <div className="goal-saved">
+              <h2>✅ Objectif Défini</h2>
+              <div className="saved-goal-card">
+                <p>
+                  🎯 Montant Cible : <strong>{savedGoal?.amount.toLocaleString('fr-FR')} €</strong>
+                </p>
+                <p>
+                  📅 Date Cible : <strong>{savedGoal?.date.toLocaleDateString('fr-FR')}</strong>
+                </p>
+                <button 
+                  onClick={() => setGoalSaved(false)}
+                  className="btn-secondary"
+                >
+                  ✏️ Modifier l'Objectif
+                </button>
+              </div>
             </div>
-          </div>
+          )
         )}
+
+        {currentPage === 'assets' && <AssetsPage />}
       </main>
 
       <footer className="app-footer">
-        <p>UC-01 : Définir l'Objectif Patrimonial 🎯</p>
+        <p>{currentPage === 'goal' ? 'UC-01 : Objectif Patrimonial' : 'UC-02 : Gestion des Actifs'} 🎯</p>
       </footer>
     </div>
   );
