@@ -30,13 +30,16 @@ const createWindow = () => {
     },
   })
 
+  // Maximiser la fenêtre au démarrage
+  mainWindow.maximize()
+
   // In production, load the index.html of the app.
   if (app.isPackaged) {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   } else {
     // In development, load the vite dev server
     mainWindow.loadURL('http://localhost:5173')
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
   }
 }
 

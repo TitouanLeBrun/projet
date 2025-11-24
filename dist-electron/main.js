@@ -32,6 +32,8 @@ const createWindow = () => {
             contextIsolation: true,
         },
     });
+    // Maximiser la fenêtre au démarrage
+    mainWindow.maximize();
     // In production, load the index.html of the app.
     if (electron_1.app.isPackaged) {
         mainWindow.loadFile(path_1.default.join(__dirname, '../dist/index.html'));
@@ -39,7 +41,7 @@ const createWindow = () => {
     else {
         // In development, load the vite dev server
         mainWindow.loadURL('http://localhost:5173');
-        mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools()
     }
 };
 // IPC Handlers pour UC-01 : Objectif Patrimonial

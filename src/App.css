@@ -1,8 +1,10 @@
 .app {
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow: hidden;
 }
 
 .app-header {
@@ -29,7 +31,11 @@
 
 .app-main {
   flex: 1;
-  padding: 1rem;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-footer {
@@ -41,8 +47,8 @@
 }
 
 .goal-saved {
-  max-width: 600px;
-  margin: 2rem auto;
+  width: 100%;
+  max-width: 800px;
   padding: 2rem;
   background: white;
   border-radius: 16px;
@@ -97,7 +103,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   text-align: center;
 }
 

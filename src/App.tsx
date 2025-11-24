@@ -38,7 +38,6 @@ function App() {
 
     loadGoal();
   }, []);
-
   const handleSaveGoal = async (targetAmount: number, targetDate: Date) => {
     try {
       const response = await window.electronAPI.goal.save(targetAmount, targetDate);
@@ -46,7 +45,7 @@ function App() {
       if (response.success) {
         setSavedGoal({ amount: targetAmount, date: targetDate });
         setGoalSaved(true);
-        alert('✅ Objectif sauvegardé avec succès !');
+        // Message supprimé - l'interface indique déjà que l'objectif est sauvegardé
       } else {
         throw new Error(response.error || 'Erreur inconnue');
       }
