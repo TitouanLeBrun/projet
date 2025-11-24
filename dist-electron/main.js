@@ -77,6 +77,84 @@ electron_1.ipcMain.handle('goal:get', async () => {
         return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
 });
+// IPC Handlers pour UC-02 : Gestion des Actifs
+electron_1.ipcMain.handle('asset:create', async (_event, data) => {
+    try {
+        const prisma = await (0, database_1.getPrismaClient)();
+        const asset = await prisma.asset.create({
+            data: {
+                name: data.name,
+                category: data.category,
+                expectedRoi: parseFloat(data.expectedRoi),
+            },
+        });
+        return { success: true, data: asset };
+    }
+    catch (error) {
+        console.error('Erreur lors de la création de l\'actif:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
+electron_1.ipcMain.handle('asset:list', async () => {
+    try {
+        const prisma = await (0, database_1.getPrismaClient)();
+        const assets = await prisma.asset.findMany({
+            where: { isActive: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        return { success: true, data: assets };
+    }
+    catch (error) {
+        console.error('Erreur lors de la récupération des actifs:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
+electron_1.ipcMain.handle('asset:get', async (_event, id) => {
+    try {
+        const prisma = await (0, database_1.getPrismaClient)();
+        const asset = await prisma.asset.findUnique({
+            where: { id: parseInt(id) },
+        });
+        return { success: true, data: asset };
+    }
+    catch (error) {
+        console.error('Erreur lors de la récupération de l\'actif:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
+electron_1.ipcMain.handle('asset:update', async (_event, { id, data }) => {
+    try {
+        const prisma = await (0, database_1.getPrismaClient)();
+        const asset = await prisma.asset.update({
+            where: { id: parseInt(id) },
+            data: {
+                name: data.name,
+                category: data.category,
+                expectedRoi: parseFloat(data.expectedRoi),
+            },
+        });
+        return { success: true, data: asset };
+    }
+    catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'actif:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
+electron_1.ipcMain.handle('asset:delete', async (_event, id) => {
+    try {
+        const prisma = await (0, database_1.getPrismaClient)();
+        // Soft delete: marquer comme inactif
+        const asset = await prisma.asset.update({
+            where: { id: parseInt(id) },
+            data: { isActive: false },
+        });
+        return { success: true, data: asset };
+    }
+    catch (error) {
+        console.error('Erreur lors de la suppression de l\'actif:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+});
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 electron_1.app.on('ready', async () => {
